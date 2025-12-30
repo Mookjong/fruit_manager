@@ -1,13 +1,22 @@
 from typing import Dict
+import json
 
-inventory = {
-    "apple": 10,
-    "banana": 5,
-    "orange": 8,
-    "grape": 15,
-    "mango": 12,
-    "cranberry": 7,
-}
+def load_inventory(file_path: str) -> Dict[str, int]:
+    try:
+        with open(file_path, 'r') as file:
+            inventory: Dict[str, int] = json.load(file)
+            
+    except FileNotFoundError:
+        return {}
+    except json.JSONDecodeError:
+        return {}
+    else:   
+        return inventory
+    
+    
+def save_inventory(file_path: str, inventory: Dict[str, int]):
+    with open(file_path, 'w') as file:
+        json.dump(inventory, file, indent=4)
 
 
 def print_separator():
@@ -40,8 +49,12 @@ def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int):
 
 
 if __name__ == "__main__":
+    
+    inventory_file = "fruit_inventory.json"
+    inventory = load_inventory(inventory_file)
 
     display_inventory(inventory)
     harvest_fruit(inventory, "banana", 10)
     sell_fruit(inventory, "apple", 4)
     display_inventory(inventory)
+    save_inventory(inventory_file, inventory)

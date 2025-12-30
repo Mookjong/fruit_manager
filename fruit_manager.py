@@ -7,8 +7,10 @@ def load_inventory(file_path: str) -> Dict[str, int]:
             inventory: Dict[str, int] = json.load(file)
             
     except FileNotFoundError:
+        print("Inventory file not found. Starting with an empty inventory.")
         return {}
     except json.JSONDecodeError:
+        print("Error decoding inventory file. Starting with an empty inventory.")
         return {}
     else:   
         return inventory
@@ -50,7 +52,7 @@ def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int):
 
 if __name__ == "__main__":
     
-    inventory_file = "fruit_inventory.json"
+    inventory_file = "./data/fruit_inventory.json"
     inventory = load_inventory(inventory_file)
 
     display_inventory(inventory)

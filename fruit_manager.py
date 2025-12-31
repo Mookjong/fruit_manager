@@ -81,7 +81,7 @@ if __name__ == "__main__":
     inventory_file = "./data/fruit_inventory.json"
     inventory = load_inventory(inventory_file)
     
-    treasury_file = "./data/treasury.txt"
+    treasury_file = "./data/treasuy.txt"
     try:
         treasury = load_treasury(treasury_file)
     except FileNotFoundError:

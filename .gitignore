@@ -1,3 +1,6 @@
+# Ignorer les fichiers pycache
+__pycache__/
+*.py[cod]
 data/*.json
 
 data/*.txt

@@ -38,6 +38,19 @@ def save_treasury(file_path: str, treasury: float):
         file.write(f"{treasury:.2f}")
         
         
+def load_price(file_path: str) -> Dict[str, float]:
+    try:
+        with open(file_path, "r") as file:
+            price: Dict[str, float] = json.load(file)
+
+    except FileNotFoundError:
+        raise FileNotFoundError("Price file not found.")
+    except json.JSONDecodeError:
+        raise json.JSONDecodeError("Error decoding price file.")
+    else:
+        return price
+        
+        
 def display_treasury(treasury: float):
     print(f"Treasury Balance: ${treasury:.2f}")
     print_separator()
@@ -66,7 +79,8 @@ def harvest_fruit(inventory: Dict[str, int], fruit: str, quantity: int):
 def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int, treasury: float = 0.0) -> float | None:
     if fruit in inventory and inventory[fruit] >= quantity:
         inventory[fruit] -= quantity
-        treasury += quantity * 2.0  # Assume each fruit sells for $2.0
+        pricies = load_price("./data/price.json")
+        treasury += quantity * pricies.get(fruit, 0)
         print(f"Sold {quantity} units of {fruit}.")
         print_separator()
         return treasury
@@ -93,7 +107,7 @@ if __name__ == "__main__":
     display_inventory(inventory)
     harvest_fruit(inventory, "banana", 10)
     
-    treasury = sell_fruit(inventory, "apple", 4, treasury) or treasury
+    treasury = sell_fruit(inventory, "cranberry", 10, treasury) or treasury
     save_treasury(treasury_file, treasury)
     display_treasury(treasury)
     

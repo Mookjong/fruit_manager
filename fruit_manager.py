@@ -1,6 +1,7 @@
 from typing import Dict
 import json
 import sys
+import os
 
 
 def load_inventory(file_path: str) -> Dict[str, int]:
@@ -9,11 +10,9 @@ def load_inventory(file_path: str) -> Dict[str, int]:
             inventory: Dict[str, int] = json.load(file)
 
     except FileNotFoundError:
-        print("Inventory file not found. Starting with an empty inventory.")
-        return {}
+        raise FileNotFoundError("Inventory file not found.")
     except json.JSONDecodeError:
-        print("Error decoding inventory file. Starting with an empty inventory.")
-        return {}
+        raise json.JSONDecodeError("Error decoding inventory file.")
     else:
         return inventory
 
@@ -93,7 +92,11 @@ def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int, treasury: f
 if __name__ == "__main__":
 
     inventory_file = "./data/fruit_inventory.json"
-    inventory = load_inventory(inventory_file)
+    try:
+        inventory = load_inventory(inventory_file)
+    except FileNotFoundError:
+        print("Inventory file not found. The program will exit.")
+        sys.exit("Exiting due to missing inventory file.")
     
     treasury_file = "./data/treasury.txt"
     try:

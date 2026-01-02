@@ -1,7 +1,6 @@
-from typing import Dict
+from typing import Dict, List
 import json
 import sys
-import os
 
 
 def load_inventory(file_path: str) -> Dict[str, int]:
@@ -48,6 +47,22 @@ def load_price(file_path: str) -> Dict[str, float]:
         raise json.JSONDecodeError("Error decoding price file.")
     else:
         return price
+    
+def load_treasury_history(file_path: str) -> List:
+    try:
+        with open(file_path, "r") as file:
+            history: List = json.load(file)
+
+    except FileNotFoundError:
+        raise FileNotFoundError("Treasury history file not found.")
+    except json.JSONDecodeError:
+        raise json.JSONDecodeError("Error decoding treasury history file.")
+    else:
+        return history
+    
+def save_treasury_history(file_path: str, history: List):
+    with open(file_path, "w") as file:
+        json.dump(history, file, indent=4)
         
         
 def display_treasury(treasury: float):
@@ -75,11 +90,14 @@ def harvest_fruit(inventory: Dict[str, int], fruit: str, quantity: int):
     print_separator()
 
 
-def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int, treasury: float = 0.0) -> float | None:
+def sell_fruit(inventory: Dict[str, int], fruit: str, quantity: int, treasury: float = 0.0, treasury_history: List = None) -> float | None:
     if fruit in inventory and inventory[fruit] >= quantity:
         inventory[fruit] -= quantity
         pricies = load_price("./data/price.json")
         treasury += quantity * pricies.get(fruit, 0)
+        treasury_history = treasury_history if treasury_history is not None else []
+        treasury_history.append(treasury)
+        save_treasury_history("./data/treasury_history.json", treasury_history)
         print(f"Sold {quantity} units of {fruit}.")
         print_separator()
         return treasury
@@ -95,22 +113,27 @@ if __name__ == "__main__":
     try:
         inventory = load_inventory(inventory_file)
     except FileNotFoundError:
-        print("Inventory file not found. The program will exit.")
         sys.exit("Exiting due to missing inventory file.")
     
     treasury_file = "./data/treasury.txt"
     try:
         treasury = load_treasury(treasury_file)
     except FileNotFoundError:
-        print("Treasury file not found. The program will exit.")
         sys.exit("Exiting due to missing treasury file.")
     else:
         display_treasury(treasury)
+        
+    treasury_history_file = "./data/treasury_history.json"
+    try:
+        treasury_history = load_treasury_history(treasury_history_file)
+    except FileNotFoundError:
+        sys.exit("Exiting due to missing treasury history file.")
+    
 
     display_inventory(inventory)
     harvest_fruit(inventory, "banana", 10)
     
-    treasury = sell_fruit(inventory, "cranberry", 10, treasury) or treasury
+    treasury = sell_fruit(inventory, "cranberry", 10, treasury, treasury_history)
     save_treasury(treasury_file, treasury)
     display_treasury(treasury)
     
